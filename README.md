@@ -5,7 +5,7 @@ A production-ready, server-authoritative multiplayer Tic-Tac-Toe game.
 ## Assessment Deliverables Links
 * **Source Code Repository:** [GitHub Repository](https://github.com/Paulofficial28/Tic_Tac_Toe)
 * **Deployed Game URL:** `[INSERT_YOUR_FRONTEND_URL_HERE]` *(e.g., https://my-tic-tac-toe.vercel.app)*
-* **Deployed Nakama Server:** `[INSERT_YOUR_NAKAMA_URL_HERE]` *(e.g., https://nakama.my-domain.com:7350)*
+* **Deployed Nakama Server:** `https://tic-tac-toe-vpqp.onrender.com`
 
 ---
 

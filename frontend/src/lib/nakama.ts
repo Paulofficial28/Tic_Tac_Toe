@@ -1,8 +1,8 @@
 import { Client } from '@heroiclabs/nakama-js';
 import type { Session, Socket } from '@heroiclabs/nakama-js';
 
-const useSSL = false; // set to true in production
-const client = new Client("defaultkey", "localhost", "7350", useSSL);
+const useSSL = true; // set to true in production
+const client = new Client("defaultkey", "tic-tac-toe-vpqp.onrender.com", "443", useSSL);
 
 export let session: Session | null = null;
 export let socket: Socket | null = null;
