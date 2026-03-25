@@ -1,133 +1,120 @@
-# Real-Time Multiplayer Server-Authoritative Tic-Tac-Toe
+# 🎮 Real-Time Multiplayer Tic-Tac-Toe
 
-A production-ready, server-authoritative multiplayer Tic-Tac-Toe game.
+Welcome to the **Server-Authoritative Multiplayer Tic-Tac-Toe**! This project is a production-ready game built with React, Vite, and the Nakama Game Server. 
 
-## Assessment Deliverables Links
+---
+
+## 🔗 Assessment Deliverables Links
+
 * **Source Code Repository:** [GitHub Repository](https://github.com/Paulofficial28/Tic_Tac_Toe)
-* **Deployed Game URL:** `[INSERT_YOUR_FRONTEND_URL_HERE]` *(e.g., https://my-tic-tac-toe.vercel.app)*
-* **Deployed Nakama Server:** `https://tic-tac-toe-vpqp.onrender.com`
+* **Deployed Game URL:** `https://tic-tac-toe-ten-cyan-43.vercel.app/` *(Play the game here!)*
+* **Deployed Nakama Server:** `https://tic-tac-toe-vpqp.onrender.com` *(Backend endpoint)*
 
 ---
 
-## 1. Architecture & Design Decisions
+## 🏗️ 1. Architecture and Design Decisions
 
-### Frontend
-- **Framework:** React 18 with Vite for lightning-fast HMR and optimized production builds.
-- **Language:** TypeScript for strict typing of Nakama match states and OP codes.
-- **Styling:** Vanilla CSS for a premium, lightweight, dynamic, and responsive UI without external bloat.
-- **Networking:** Nakama JS Client communicating via WebSocket (`wss://`) to send Match States and OP Codes continuously.
+This project is divided into two main parts: a fast **React Frontend** and a secure **Nakama Backend**.
 
-### Backend (Server-Authoritative)
-- **Engine:** Nakama Server (by Heroic Labs), an open-source, scalable game server.
-- **Database:** PostgreSQL used by Nakama to persist Leaderboard data, accounts, and server state.
-- **Server Module:** TypeScript Backend Module containing all game state management, win logic, turn timers, and Tick rate execution.
+### The Frontend (Client)
+* **React 18 & Vite:** We chose React for components and Vite to make the app lightning-fast to load and build.
+* **TypeScript:** Ensures all code is strictly typed, avoiding runtime game-breaking errors.
+* **Vanilla CSS:** We used pure CSS for styling to keep the application lightweight while delivering a premium, dynamically responsive user interface without relying on heavy external libraries.
+* **WebSocket Networking:** The browser uses the `nakama-js` client to maintain a persistent WebSocket (`wss://`) connection to the server.
 
-### Security & Game Logic
-- All game logic validation happens on the Nakama server specifically in the match handler (`backend/src/match_handler.ts`).
-- The client never computes the result of the match. It only sends an **OP Code (1 = MOVE)** and the server validates if the move is legal (checking whose turn it is, and if the cell is empty). The server calculates win/draw conditions and broadcasts a **STATE_UPDATE** or **MATCH_END** to clients.
-- **Anti-Cheat:** Because the server is authoritative, hacked clients cannot force a win or an illegal move.
+### The Backend (Server-Authoritative Logic)
+* **Nakama by Heroic Labs:** An open-source, scalable game server engine that handles matchmaking, leaderboards, and real-time multiplayer sockets.
+* **PostgreSQL:** The database used by Nakama to save player accounts and leaderboard scores permanently.
+* **Server-Authoritative Model (Security):** To prevent players from cheating (like moving out of turn or overriding the board), the client *never* decides who wins. The client only asks the server, "Can I place an X here?". The server validates the move, updates the board, calculates if someone won, and then tells both players the result.
 
 ---
 
-## 2. Setup & Installation Instructions (Local Development)
+## ⚙️ 2. Setup and Installation Instructions
 
-You will need **Node.js** and **Docker Desktop** (or Docker Engine/Compose) installed locally.
+Want to run this game on your own computer? Follow these simple steps.
 
-### Start the Backend Infrastructure
-The backend directory contains the `.ts` scripts for the server logic and a `docker-compose.yml` to boot Nakama + Postgres locally.
-```bash
-cd backend
-npm install
-npm run build
-docker compose up -d
-```
-*Nakama will bind to `127.0.0.1:7350` and auto-load the compiled `build/index.js` module.*
-*(Default Nakama local credentials are `admin:password`, and server key `defaultkey`)*
+### Prerequisites
+You must have **Node.js** and **Docker Desktop** installed on your machine.
 
-### Start the Frontend Application
-In a separate terminal, install the frontend dependencies and spin up Vite.
-```bash
-cd frontend
-npm install
-npm run dev
-```
-Visit `http://localhost:5173/` in your browser. Open an Incognito window to simulate Player 2 alongside Player 1!
+### Step 1: Start the Local Backend Server
+Our backend uses Docker to effortlessly spin up the Nakama server and database.
+1. Open your terminal and navigate to the `backend` folder:
+   ```bash
+   cd backend
+   ```
+2. Install the necessary packages and compile the custom server code:
+   ```bash
+   npm install
+   npm run build
+   ```
+3. Start the server using Docker Compose:
+   ```bash
+   docker compose up -d
+   ```
+*(The backend is now running locally on `http://127.0.0.1:7350`)*
 
----
-
-## 3. API & Server Configuration Details
-
-### OP Codes
-The server and client communicate using predefined operation codes:
-* `1` (**MOVE**): Client sends to Server to request a move.
-* `2` (**STATE_UPDATE**): Server broadcasts the updated board state to all connected clients.
-* `3` (**MATCH_END**): Server broadcasts the final game result (win/draw/forfeit).
-
-### Matchmaking & Timers
-- A global RPC call `find_match` uses Nakama's match maker, automatically routing players into the same active session.
-- **30-Second Match Loop:** By computing standard `Date.now() / 1000` boundaries, the server verifies timeouts and triggers a Forfeit scenario inside the `matchLoop` tick execution.
-
----
-
-## 4. How to Test the Multiplayer Functionality
-
-1. Ensure the backend (`docker compose up -d`) and frontend (`npm run dev`) are running.
-2. Open two distinct browser tabs (e.g., normal Chrome and an Incognito window).
-3. On **Tab 1**, login as "Alice_Player". Click **"Find Match"**. The server creates a custom match ID and places Alice in the waiting pool.
-4. On **Tab 2**, login as "Bob_Player". Click **"Find Match"**. The server assigns Bob to Alice's active match room via the `rpcFindMatch`.
-5. The game transitions both users to the game UI simultaneously using React Router `/game` parameters.
-6. Play the game! 
-7. **Timeout Testing:** Try letting the 30-second timer elapse without playing a move to test the server-authoritative auto-forfeit.
-8. **Disconnect Testing:** Exit the browser tab mid-game to verify the match gracefully shuts down and the opponent receives a win.
-9. Return to the Lobby, click **"Leaderboard"** to see your global recorded wins persistence!
+### Step 2: Start the Frontend Application
+1. Open a **new** terminal window and navigate to the `frontend` folder:
+   ```bash
+   cd frontend
+   ```
+2. Install the frontend packages:
+   ```bash
+   npm install
+   ```
+3. Start the local web server:
+   ```bash
+   npm run dev
+   ```
+4. Open your web browser and go to `http://localhost:5173/`. 
 
 ---
 
-## 5. Deployment Process Documentation
+## 📡 3. API & Server Configuration Details
 
-Follow these steps to deploy your application to the cloud.
+### How the Client and Server Talk (OP Codes)
+To keep the game lightning fast, the server and client communicate using simple numeric codes called **OP Codes**.
+* **OP Code `1` (MOVE):** The browser sends this to the server when a player clicks a square.
+* **OP Code `2` (STATE_UPDATE):** The server broadcasts this to both players to update their screens when a valid move happens.
+* **OP Code `3` (MATCH_END):** The server broadcasts this when someone wins, loses, or the game is a draw.
 
-### A. Deploying the Frontend (Vercel)
-Vercel is the easiest place to host the React/Vite frontend for free.
-
-1. Ensure this codebase is pushed to your GitHub repository.
-2. Go to [Vercel](https://vercel.com/) and click **Add New Project**.
-3. Import your GitHub repository.
-4. **Important Configuration:**
-   * **Framework Preset:** Vite
-   * **Root Directory:** `frontend`
-   * **Build Command:** `npm run build`
-   * **Output Directory:** `dist`
-5. Click **Deploy**. Vercel will give you a live URL (e.g., `https://my-tic-tac-toe.vercel.app`).
-
-**Before you push:** Remember to update `frontend/src/lib/nakama.ts` to point to your deployed Nakama Production server URL!
-```typescript
-const useSSL = true; // MUST be true in production
-const client = new Client("defaultkey", "YOUR_NAKAMA_DOMAIN_OR_IP", "443", useSSL);
-```
-
-### B. Deploying the Nakama Backend
-
-**Why not Vercel?** 
-Vercel is a "serverless" platform meant for hosting static files (React) and short-lived API endpoints. Nakama requires a **continuous, long-running WebSocket server** to maintain active player match states, which serverless platforms like Vercel do not support. 
-
-Therefore, you must host the backend on a platform that supports Docker containers, such as **Render**, **Railway**, or a standard Cloud VM (AWS/DigitalOcean).
-
-#### Option 1: Free Tier via Render.com (Easiest)
-1. Create a free account on [Render](https://render.com/).
-2. Create a new **PostgreSQL** database on Render and copy its Internal Database URL.
-3. Create a new **Web Service** on Render, connect your GitHub repository, and choose the `backend` directory.
-4. Set the Environment to `Docker`.
-5. Add an Environment Variable for the database: `DB_URL` = `[Your Render Postgres URL]`.
-6. Render will automatically build your Docker container and give you a live HTTPS/WSS URL!
-
-#### Option 2: Cloud VM (DigitalOcean Droplet / AWS EC2 Free Tier)
-For game servers, a standard Cloud Virtual Machine (Ubuntu) running Docker Compose is highly recommended.
-1. **Provision a VM:** Create a basic Ubuntu VM (1GB or 2GB RAM is sufficient).
-2. **Install Docker:** SSH into the server and run `sudo apt update && sudo apt install docker.io docker-compose -y`.
-3. **Upload the Backend:** Clone your repository `git clone https://github.com/Paulofficial28/Tic_Tac_Toe.git`.
-4. **Start the Server:** `cd Tic_Tac_Toe/backend` then `sudo docker-compose up -d`.
-5. **Secure with SSL:** Set up an **Nginx Reverse Proxy** with **Certbot (Let's Encrypt)** targeting `localhost:7350` to secure your Nakama endpoints.
+### Matchmaking & Game Timers
+* **Matchmaking RPC (`find_match`):** When a user clicks "Find Match", the frontend triggers a Remote Procedure Call (RPC) to the server. The server instantly drops them into a matchmaking pool and pairs them with the next available opponent.
+* **30-Second Match Loop Logic:** The server has an internal "Tick Loop". Every second, it calculates the time difference (`Date.now() / 1000`). If a player takes more than 30 seconds to make a move, the server triggers an automatic Forfeit and awards the win to the other player.
 
 ---
-**After Backend Deployment:** Once your backend is live (e.g., `nakama.onrender.com`), paste its domain into your `frontend/src/lib/nakama.ts`, ensure `useSSL` is set to `true`, and re-deploy your Vercel frontend.
+
+## 🧪 4. How to Test the Multiplayer Functionality
+
+We have designed the game so that you can easily test it by yourself using two browser windows!
+
+**Step-by-Step Testing Guide:**
+1. Open the **Deployed Game URL** (`https://tic-tac-toe-ten-cyan-43.vercel.app/`) in your normal web browser (like Chrome).
+2. Open the same exact URL in an **Incognito / Private Window** (This simulates a second completely separate computer).
+3. **Player 1 (Normal Window):** Login with a name (e.g., "Alice") and click the **"Find Match"** button. You will see a "Waiting for opponent..." screen.
+4. **Player 2 (Incognito Window):** Login with a different name (e.g., "Bob") and click the **"Find Match"** button. 
+5. The Nakama server will instantly detect both of you, pair you together in a secure room, and transition both screens to the Tic-Tac-Toe board!
+6. **Play a Match:** Try clicking the squares. Notice how Player 2's screen updates instantly when Player 1 moves.
+7. **Test the Timer:** Once the game starts, let the timer run out completely without clicking anything. You will see the server automatically end the game and declare a winner due to inactivity.
+8. **Test the Leaderboard:** Click the "Leaderboard" button on the home screen to verify your wins were permanently saved to the database.
+
+---
+
+## 🚀 5. Deployment Process Documentation
+
+Here is exactly how this project was deployed to the public internet for free.
+
+### Part A: Deploying the Frontend (Vercel)
+Vercel is heavily optimized for React applications.
+1. We uploaded our codebase to GitHub.
+2. We logged into Vercel and imported our GitHub repository.
+3. We set the Root Directory to `frontend`.
+4. We clicked **Deploy**. Vercel automatically built the React code and generated our live `https://tic-tac-toe-ten-cyan-43.vercel.app/` URL.
+
+### Part B: Deploying the Backend (Render.com)
+Vercel is "serverless", meaning it cannot host continuous WebSockets. We deployed our backend to **Render**, which natively supports Docker containers.
+1. We created a free **PostgreSQL** database on Render.
+2. We created a free **Web Service** on Render and connected it to our GitHub repository, choosing the `backend` folder.
+3. We created a custom `Dockerfile` in the `backend` folder that instructs Render to build our TypeScript logic and inject it into the base Nakama server image.
+4. We added our Render Postgres database link as an environment variable (`DB_URL`).
+5. Render automatically built the Docker container and exposed it securely via SSL (`wss://`) at `https://tic-tac-toe-vpqp.onrender.com`.
