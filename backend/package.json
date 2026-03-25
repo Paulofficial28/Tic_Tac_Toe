@@ -1,0 +1,21 @@
+{
+  "name": "tic-tac-toe-backend",
+  "version": "1.0.0",
+  "description": "Nakama Tic-Tac-Toe Backend",
+  "main": "build/index.js",
+  "scripts": {
+    "build": "rollup -c",
+    "typecheck": "tsc --noEmit"
+  },
+  "devDependencies": {
+    "@rollup/plugin-commonjs": "^25.0.0",
+    "@rollup/plugin-node-resolve": "^15.0.0",
+    "@rollup/plugin-typescript": "^11.1.0",
+    "rollup": "^3.20.0",
+    "tslib": "^2.5.0",
+    "typescript": "^5.0.0"
+  },
+  "dependencies": {
+    "nakama-runtime": "https://github.com/heroiclabs/nakama-common.git"
+  }
+}
